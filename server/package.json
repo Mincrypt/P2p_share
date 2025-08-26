@@ -1,0 +1,15 @@
+{
+  "name": "p2p-share",
+  "version": "1.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "NODE_ENV=development node server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0",
+    "nanoid": "^5.0.7"
+  }
+}

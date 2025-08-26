@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>P2P Share — Browser-to-Browser</title>
+  <link rel="icon" href="/favicon.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="color-scheme" content="light dark"/>
+  <style>
+    :root { --card: rgba(255,255,255,0.7); --glass: blur(10px); }
+    @media (prefers-color-scheme: dark){ :root { --card: rgba(17,24,39,0.6); } }
+    .glass { backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass); background: var(--card); }
+    .dashed { border: 2px dashed rgba(100,116,139,0.5); }
+    .mono { font-feature-settings: "ss01","ss02"; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
+  <div class="max-w-4xl mx-auto p-6">
+    <header class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-3">
+        <img src="/favicon.svg" alt="" class="w-8 h-8" />
+        <h1 class="text-2xl font-semibold tracking-tight">P2P Share</h1>
+      </div>
+      <!-- <a href="https://file.pizza/" target="_blank" class="text-sm underline opacity-70 hover:opacity-100">Inspired by file.pizza</a> -->
+    </header>
+
+    <main class="grid gap-6">
+      <section class="glass rounded-2xl shadow-lg p-6">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <h2 class="text-xl font-semibold">1) Start a Share</h2>
+            <p class="text-sm opacity-80">Choose a file and get a private link. Keep this tab open while the other person downloads.</p>
+            <label for="fileInput" class="block">
+              <div id="dropzone" class="dashed rounded-xl py-10 px-6 text-center hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
+                <p class="text-sm mb-2">Drag & drop a file here</p>
+                <p class="text-xs opacity-70">or click to browse</p>
+              </div>
+              <input id="fileInput" type="file" class="hidden" />
+            </label>
+            <div class="grid gap-3">
+              <div class="grid gap-1">
+                <label class="text-xs uppercase tracking-wide opacity-70">Optional download password</label>
+                <input id="password" type="password" class="w-full rounded-lg px-3 py-2 bg-slate-100 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Set a password (optional)" />
+              </div>
+              <button id="createLink" class="inline-flex items-center justify-center rounded-xl px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white">Create link</button>
+              <div id="shareBox" class="hidden grid gap-2">
+                <label class="text-xs uppercase tracking-wide opacity-70">Share this link</label>
+                <div class="flex items-center gap-2">
+                  <input id="shareLink" class="flex-1 rounded-lg px-3 py-2 bg-slate-100 dark:bg-slate-800 outline-none mono text-sm" readonly />
+                  <button id="copyBtn" class="rounded-lg px-3 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">Copy</button>
+                </div>
+                <p class="text-xs opacity-70">Stay on this page until the transfer completes.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-xl font-semibold">2) Join & Download</h2>
+            <p class="text-sm opacity-80">Open the shared link here or paste a Room ID below.</p>
+            <div class="grid gap-2">
+              <label class="text-xs uppercase tracking-wide opacity-70">Room ID</label>
+              <div class="flex gap-2">
+                <input id="roomInput" class="flex-1 rounded-lg px-3 py-2 bg-slate-100 dark:bg-slate-800 outline-none mono text-sm" placeholder="e.g. 8Fjs2K9AbC" />
+                <button id="joinBtn" class="rounded-xl px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white">Join</button>
+              </div>
+            </div>
+            <div id="passwordPrompt" class="hidden grid gap-2">
+              <label class="text-xs uppercase tracking-wide opacity-70">Enter password</label>
+              <input id="passwordInput" type="password" class="rounded-lg px-3 py-2 bg-slate-100 dark:bg-slate-800 outline-none" placeholder="Password required" />
+              <button id="unlockBtn" class="rounded-xl px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white">Unlock & Download</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="glass rounded-2xl shadow-lg p-6">
+        <h3 class="text-lg font-semibold mb-3">Transfer Status</h3>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <p id="senderStatus" class="text-sm opacity-80">Idle.</p>
+            <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-3 mt-2">
+              <div id="sendBar" class="bg-indigo-600 h-3 rounded-full" style="width:0%"></div>
+            </div>
+          </div>
+          <div>
+            <p id="receiverStatus" class="text-sm opacity-80">Idle.</p>
+            <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-3 mt-2">
+              <div id="recvBar" class="bg-emerald-600 h-3 rounded-full" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="text-xs opacity-70 text-center">
+        <p>No file is stored on the server. WebSocket signaling only. Keep at least one STUN server available.</p>
+      </footer>
+    </main>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
