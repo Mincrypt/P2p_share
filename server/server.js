@@ -11,11 +11,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const server = http.createServer(app);
 
-// Serve client
+// Serve client files
 const clientPath = path.join(__dirname, "..", "client");
 app.use(express.static(clientPath));
 
-// Simple in-memory rooms map: roomId -> Set(ws)
 const rooms = new Map();
 
 const wss = new WebSocketServer({ server, path: "/ws" });
@@ -37,12 +36,21 @@ function leaveRoom(ws) {
   ws.roomId = undefined;
 }
 
-wss.on("connection", (ws) => {
+// --- Updated connection handler with logs ---
+wss.on("connection", (ws, req) => {
+  console.log("[WS-server] new connection from", req?.socket?.remoteAddress || "unknown");
+
   ws.on("message", (raw) => {
     let msg;
-    try { msg = JSON.parse(raw.toString()); } catch { return; }
+    try {
+      msg = JSON.parse(raw.toString());
+    } catch (e) {
+      console.log("[WS-server] non-json", raw.toString());
+      return;
+    }
 
-    // create room
+    console.log("[WS-server] recv:", msg?.type || msg, "room:", msg?.roomId || "none");
+
     if (msg.type === "create") {
       const roomId = nanoid(10);
       joinRoom(ws, roomId);
@@ -50,7 +58,6 @@ wss.on("connection", (ws) => {
       return;
     }
 
-    // join existing room
     if (msg.type === "join") {
       const roomId = msg.roomId;
       if (!roomId) {
@@ -67,7 +74,6 @@ wss.on("connection", (ws) => {
       return;
     }
 
-    // relay signaling payload to other peers in the same room
     if (msg.type === "signal") {
       const roomId = msg.roomId;
       const payload = msg.payload;
@@ -83,6 +89,7 @@ wss.on("connection", (ws) => {
   });
 
   ws.on("close", () => {
+    console.log("[WS-server] connection closed");
     const roomId = ws.roomId;
     leaveRoom(ws);
     if (roomId && rooms.has(roomId)) {
@@ -92,10 +99,9 @@ wss.on("connection", (ws) => {
     }
   });
 
-  ws.on("error", () => leaveRoom(ws));
+  ws.on("error", (err) => console.log("[WS-server] ws error", err));
 });
 
-// fallback to index.html
 app.get("*", (_, res) => {
   res.sendFile(path.join(clientPath, "index.html"));
 });
