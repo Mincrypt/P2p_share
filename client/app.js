@@ -43,8 +43,8 @@ function connectWS() {
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
   const proto = location.protocol === "https:" ? "wss:" : "ws:";
   // old
-  // ws = new WebSocket(`${proto}//${location.host}/ws`);
-  const socket = new WebSocket("wss://https://p2p-share-wlm8.onrender.com/ws");
+  ws = new WebSocket(`${proto}//${location.host}/ws`);
+  // const socket = new WebSocket("wss://https://p2p-share-wlm8.onrender.com/ws");
 
   ws.onopen = () => console.log("WS open");
   ws.onmessage = (ev) => {
